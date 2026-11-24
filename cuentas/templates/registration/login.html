@@ -1,0 +1,197 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar sesión | Cacao Gestión</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #eaf3ed, #dcebe1);
+        }
+
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: white;
+            padding: 38px;
+            border-radius: 18px;
+            box-shadow: 0 15px 45px rgba(24, 69, 48, 0.12);
+        }
+
+        .brand {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .brand-icon {
+            width: 62px;
+            height: 62px;
+            margin: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #246b4c;
+            color: white;
+            border-radius: 16px;
+            font-size: 23px;
+            font-weight: bold;
+        }
+
+        h1 {
+            color: #234d39;
+            font-size: 24px;
+            margin: 18px 0 7px;
+        }
+
+        .subtitle {
+            color: #78867e;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .field {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #33483b;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #dce4de;
+            border-radius: 9px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #287653;
+            box-shadow: 0 0 0 3px rgba(40, 118, 83, 0.12);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 9px;
+            background: #246b4c;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1b543b;
+        }
+
+        .error {
+            padding: 12px;
+            margin-bottom: 18px;
+            color: #a52b2b;
+            background: #fff0f0;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .footer {
+            margin-top: 28px;
+            text-align: center;
+            color: #89958c;
+            font-size: 11px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="login-card">
+
+    <div class="brand">
+
+        <div class="brand-icon">CG</div>
+
+        <h1>CACAO GESTIÓN</h1>
+
+        <p class="subtitle">
+            Sistema de información para la gestión y trazabilidad
+            de pequeños productores agropecuarios.
+            <br>
+            Puerto Asís, Putumayo.
+        </p>
+
+    </div>
+
+    {% if form.errors %}
+        <div class="error">
+            El usuario o la contraseña son incorrectos.
+            Verifica tus credenciales e intenta nuevamente.
+        </div>
+    {% endif %}
+
+    <form method="POST">
+
+        {% csrf_token %}
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <div class="field">
+            <label for="id_username">Nombre de usuario</label>
+            <input
+                type="text"
+                name="username"
+                id="id_username"
+                autocomplete="username"
+                required
+                autofocus
+                placeholder="Ingresa tu usuario"
+            >
+        </div>
+
+        <div class="field">
+            <label for="id_password">Contraseña</label>
+            <input
+                type="password"
+                name="password"
+                id="id_password"
+                autocomplete="current-password"
+                required
+                placeholder="Ingresa tu contraseña"
+            >
+        </div>
+
+        <button type="submit">
+            Iniciar sesión
+        </button>
+
+    </form>
+
+    <div class="footer">
+        Proyecto de grado · Ingeniería de Sistemas<br>
+        Universidad Nacional Abierta y a Distancia · UNAD
+    </div>
+
+</div>
+
+</body>
+</html>

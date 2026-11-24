@@ -1,0 +1,85 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}{{ titulo }} | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN DE PRODUCTORES</span>
+        <h1>{{ titulo }}</h1>
+        <p>
+            Completa la información básica del productor de cacao.
+        </p>
+    </div>
+
+    <a href="{% url 'productores:lista' %}" class="btn-secondary">
+        Volver al listado
+    </a>
+</section>
+
+<article class="form-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Información del productor</h2>
+            <p>Los campos identificados son necesarios para el registro.</p>
+        </div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+
+            {% for field in form %}
+
+                <div class="form-group">
+
+                    <label for="{{ field.id_for_label }}">
+                        {{ field.label }}
+                    </label>
+
+                    {{ field }}
+
+                    {% if field.help_text %}
+                        <small>{{ field.help_text }}</small>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <span style="color:#b13b3b; font-size:11px;">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+
+                </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="form-actions">
+
+            <button type="submit" class="btn-primary">
+                Guardar información
+            </button>
+
+            <a href="{% url 'productores:lista' %}"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+        </div>
+
+    </form>
+
+</article>
+
+{% endblock %}

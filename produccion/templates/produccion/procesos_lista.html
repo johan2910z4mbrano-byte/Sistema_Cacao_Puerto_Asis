@@ -1,0 +1,140 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Poscosecha | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">CALIDAD Y TRAZABILIDAD</span>
+        <h1>Procesos de poscosecha</h1>
+        <p>Controla las etapas de fermentación y secado del cacao.</p>
+    </div>
+
+    {% if puede_modificar %}
+        <a href="{% url 'produccion:procesos_crear' %}" class="btn-primary">
+            + Registrar proceso
+        </a>
+    {% endif %}
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Historial de poscosecha</h2>
+            <p>Consulta las etapas realizadas en cada lote.</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por lote, cosecha o responsable..."
+        >
+
+        <select name="etapa" class="form-control">
+            <option value="todas">Todas las etapas</option>
+
+            {% for valor, nombre in etapas %}
+                <option value="{{ valor }}"
+                    {% if etapa == valor %}selected{% endif %}>
+                    {{ nombre }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-primary">Buscar</button>
+    </form>
+
+    <div class="table-container">
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Lote</th>
+                    <th>Etapa</th>
+                    <th>Inicio</th>
+                    <th>Finalización</th>
+                    <th>Duración</th>
+                    <th>Entrada (kg)</th>
+                    <th>Salida (kg)</th>
+                    <th>Responsable</th>
+                    {% if puede_modificar %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for proceso in procesos %}
+                <tr>
+                    <td><strong>{{ proceso.lote.codigo }}</strong></td>
+                    <td>{{ proceso.get_etapa_display }}</td>
+                    <td>{{ proceso.fecha_inicio|date:"d/m/Y" }}</td>
+
+                    <td>
+                        {% if proceso.fecha_fin %}
+                            {{ proceso.fecha_fin|date:"d/m/Y" }}
+                        {% else %}
+                            En proceso
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if proceso.duracion_dias != None %}
+                            {{ proceso.duracion_dias }} días
+                        {% else %}
+                            Pendiente
+                        {% endif %}
+                    </td>
+
+                    <td>{{ proceso.cantidad_entrada_kg|floatformat:3 }}</td>
+
+                    <td>
+                        {% if proceso.cantidad_salida_kg != None %}
+                            {{ proceso.cantidad_salida_kg|floatformat:3 }}
+                        {% else %}
+                            Pendiente
+                        {% endif %}
+                    </td>
+
+                    <td>{{ proceso.responsable|default:"No registrado" }}</td>
+
+                    {% if puede_modificar %}
+                    <td>
+                        <a
+                            href="{% url 'produccion:procesos_editar' proceso.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="{% if puede_modificar %}9{% else %}8{% endif %}">
+                        <div class="empty-state">
+                            <h3>No hay procesos disponibles</h3>
+                            <p>No existen procesos asociados a tu cuenta o autorizaciones.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de procesos encontrados: {{ procesos|length }}
+    </p>
+
+</article>
+
+{% endblock %}

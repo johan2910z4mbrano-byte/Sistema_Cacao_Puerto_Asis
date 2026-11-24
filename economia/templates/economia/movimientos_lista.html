@@ -1,0 +1,218 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Gestión económica | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN FINANCIERA</span>
+        <h1>Movimientos económicos</h1>
+        <p>Consulta los ingresos y gastos asociados a tus fincas.</p>
+    </div>
+
+    {% if puede_modificar %}
+        <a href="{% url 'economia:movimientos_crear' %}" class="btn-primary">
+            + Registrar movimiento
+        </a>
+    {% endif %}
+</section>
+
+{% if puede_modificar %}
+
+<div style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+">
+
+    <article class="panel-card">
+        <span class="eyebrow">INGRESOS</span>
+        <h2 style="color:#278653; margin:12px 0;">
+            ${{ ingresos|floatformat:2 }}
+        </h2>
+        <p>Total de ingresos encontrados</p>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">GASTOS</span>
+        <h2 style="color:#b4533c; margin:12px 0;">
+            ${{ gastos|floatformat:2 }}
+        </h2>
+        <p>Total de gastos encontrados</p>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">BALANCE</span>
+        <h2 style="margin:12px 0;">
+            ${{ balance|floatformat:2 }}
+        </h2>
+        <p>Ingresos menos gastos</p>
+    </article>
+
+</div>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Historial de movimientos</h2>
+            <p>Registros económicos de las unidades productivas.</p>
+        </div>
+
+        <a href="{% url 'economia:balance' %}" class="btn-secondary">
+            Ver balance por finca
+        </a>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar finca, productor o descripción..."
+        >
+
+        <select name="finca" class="form-control">
+            <option value="todos">Todas las fincas</option>
+
+            {% for finca in fincas %}
+                <option value="{{ finca.pk }}"
+                    {% if finca_id == finca.pk|stringformat:"s" %}selected{% endif %}>
+                    {{ finca.nombre }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <select name="tipo" class="form-control">
+            <option value="todos" {% if tipo == "todos" %}selected{% endif %}>
+                Todos los movimientos
+            </option>
+            <option value="ingreso" {% if tipo == "ingreso" %}selected{% endif %}>
+                Ingresos
+            </option>
+            <option value="gasto" {% if tipo == "gasto" %}selected{% endif %}>
+                Gastos
+            </option>
+        </select>
+
+        <input
+            type="date"
+            name="desde"
+            value="{{ fecha_desde }}"
+            class="form-control"
+        >
+
+        <input
+            type="date"
+            name="hasta"
+            value="{{ fecha_hasta }}"
+            class="form-control"
+        >
+
+        <button type="submit" class="btn-primary">
+            Filtrar
+        </button>
+
+    </form>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Finca</th>
+                    <th>Productor</th>
+                    <th>Tipo</th>
+                    <th>Categoría</th>
+                    <th>Valor (COP)</th>
+                    <th>Descripción</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for movimiento in movimientos %}
+
+                <tr>
+                    <td>{{ movimiento.fecha|date:"d/m/Y" }}</td>
+                    <td>{{ movimiento.finca.nombre }}</td>
+
+                    <td>
+                        {{ movimiento.finca.productor.nombres }}
+                        {{ movimiento.finca.productor.apellidos }}
+                    </td>
+
+                    <td>
+                        {% if movimiento.tipo == "ingreso" %}
+                            <span class="status active">Ingreso</span>
+                        {% else %}
+                            <span class="status inactive">Gasto</span>
+                        {% endif %}
+                    </td>
+
+                    <td>{{ movimiento.get_categoria_display }}</td>
+
+                    <td>
+                        <strong>${{ movimiento.valor|floatformat:2 }}</strong>
+                    </td>
+
+                    <td>{{ movimiento.descripcion|truncatechars:45 }}</td>
+
+                    <td>
+                        <a
+                            href="{% url 'economia:movimientos_editar' movimiento.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <h3>No hay movimientos económicos registrados</h3>
+                            <p>Los ingresos y gastos aparecerán aquí cuando sean registrados.</p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de movimientos encontrados: {{ movimientos|length }}
+    </p>
+
+</article>
+
+{% else %}
+
+<article class="panel-card">
+    <div class="empty-state">
+        <h3>Consulta financiera no habilitada</h3>
+        <p>
+            La consulta de ingresos, gastos y balances por parte de
+            asociaciones requiere una autorización económica específica
+            del productor.
+        </p>
+    </div>
+</article>
+
+{% endif %}
+
+{% endblock %}

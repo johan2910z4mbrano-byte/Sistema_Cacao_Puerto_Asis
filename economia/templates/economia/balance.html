@@ -1,0 +1,194 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Balance económico | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">ANÁLISIS FINANCIERO</span>
+        <h1>Balance económico</h1>
+        <p>Consulta los ingresos, gastos y resultados económicos de tus fincas.</p>
+    </div>
+
+    {% if puede_modificar %}
+        <a href="{% url 'economia:movimientos_lista' %}" class="btn-secondary">
+            Ver movimientos
+        </a>
+    {% endif %}
+</section>
+
+{% if puede_modificar %}
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Período de consulta</h2>
+            <p>Filtra los resultados por fechas.</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="date"
+            name="desde"
+            value="{{ fecha_desde }}"
+            class="form-control"
+            title="Fecha inicial"
+        >
+
+        <input
+            type="date"
+            name="hasta"
+            value="{{ fecha_hasta }}"
+            class="form-control"
+            title="Fecha final"
+        >
+
+        <button type="submit" class="btn-primary">
+            Consultar
+        </button>
+
+        <a href="{% url 'economia:balance' %}" class="btn-secondary">
+            Limpiar
+        </a>
+
+    </form>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:18px;">
+
+        <a
+            href="{% url 'economia:balance_excel' %}?desde={{ fecha_desde|urlencode }}&hasta={{ fecha_hasta|urlencode }}"
+            class="btn-primary">
+            Descargar Excel
+        </a>
+
+        <a
+            href="{% url 'economia:balance_pdf' %}?desde={{ fecha_desde|urlencode }}&hasta={{ fecha_hasta|urlencode }}"
+            class="btn-secondary">
+            Descargar PDF
+        </a>
+
+    </div>
+
+</article>
+
+<div style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+    gap:15px;
+    margin:20px 0;
+">
+
+    <article class="panel-card">
+        <span class="eyebrow">INGRESOS GENERALES</span>
+        <h2 style="color:#278653; margin:12px 0;">
+            ${{ total_ingresos|floatformat:2 }}
+        </h2>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">GASTOS GENERALES</span>
+        <h2 style="color:#b4533c; margin:12px 0;">
+            ${{ total_gastos|floatformat:2 }}
+        </h2>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">BALANCE GENERAL</span>
+        <h2 style="margin:12px 0;">
+            ${{ balance_general|floatformat:2 }}
+        </h2>
+        <p>Ingresos menos gastos.</p>
+    </article>
+
+</div>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Resultado económico por finca</h2>
+            <p>Comparación de ingresos y gastos registrados.</p>
+        </div>
+    </div>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Finca</th>
+                    <th>Productor</th>
+                    <th>Ingresos (COP)</th>
+                    <th>Gastos (COP)</th>
+                    <th>Balance (COP)</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for finca in fincas %}
+
+                <tr>
+                    <td><strong>{{ finca.nombre }}</strong></td>
+
+                    <td>
+                        {{ finca.productor.nombres }}
+                        {{ finca.productor.apellidos }}
+                    </td>
+
+                    <td>${{ finca.ingresos|floatformat:2 }}</td>
+                    <td>${{ finca.gastos|floatformat:2 }}</td>
+
+                    <td>
+                        <strong>
+                            ${{ finca.balance|floatformat:2 }}
+                        </strong>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="5">
+                        <div class="empty-state">
+                            <h3>No hay fincas disponibles</h3>
+                            <p>No se encontraron unidades productivas para este perfil.</p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="margin-top:15px; color:#78867e; font-size:11px;">
+        Resultados calculados con los movimientos económicos registrados.
+    </p>
+
+</article>
+
+{% else %}
+
+<article class="panel-card">
+    <div class="empty-state">
+        <h3>Balance económico no habilitado</h3>
+        <p>
+            Para consultar balances financieros de productores,
+            la asociación necesita una autorización económica específica.
+        </p>
+    </div>
+</article>
+
+{% endif %}
+
+{% endblock %}

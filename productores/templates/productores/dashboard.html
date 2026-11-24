@@ -1,0 +1,503 @@
+{% extends "productores/base.html" %}
+
+{% block title %}Panel principal | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<!-- ENCABEZADO -->
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">PANEL GENERAL DE CONTROL</span>
+        <h1>Bienvenido a Cacao Gestión</h1>
+        <p>
+            Sistema de información para la gestión y trazabilidad
+            de pequeños productores agropecuarios de Puerto Asís, Putumayo.
+        </p>
+    </div>
+
+    <a href="{% url 'productores:crear' %}" class="btn-primary">
+        + Registrar productor
+    </a>
+</section>
+
+<!-- AVISO SOBRE LOS INDICADORES -->
+<div class="alert-message" style="margin-bottom:22px;">
+    Indicadores calculados a partir de los registros almacenados
+    actualmente en el sistema. Pueden incluir información de prueba.
+</div>
+
+
+<!-- ========================================= -->
+<!-- INDICADORES GENERALES -->
+<!-- ========================================= -->
+
+<div style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+    gap:15px;
+    margin-bottom:22px;
+">
+
+    <article class="panel-card">
+        <span class="eyebrow">PRODUCTORES</span>
+        <h2 style="font-size:30px; margin:12px 0 4px;">
+            {{ total }}
+        </h2>
+        <p>Registros de productores</p>
+        <small>Activos: {{ activos }} · Inactivos: {{ inactivos }}</small>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">ASOCIACIONES</span>
+        <h2 style="font-size:30px; margin:12px 0 4px;">
+            {{ total_asociaciones }}
+        </h2>
+        <p>Organizaciones registradas</p>
+        <small>Activas: {{ asociaciones_activas }}</small>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">FINCAS</span>
+        <h2 style="font-size:30px; margin:12px 0 4px;">
+            {{ total_fincas }}
+        </h2>
+        <p>Unidades productivas</p>
+        <small>Activas: {{ fincas_activas }}</small>
+    </article>
+
+    <article class="panel-card">
+        <span class="eyebrow">CULTIVOS</span>
+        <h2 style="font-size:30px; margin:12px 0 4px;">
+            {{ total_cultivos }}
+        </h2>
+        <p>Cultivos registrados</p>
+        <small>Activos: {{ cultivos_activos }}</small>
+    </article>
+
+</div>
+
+
+<!-- ========================================= -->
+<!-- PRODUCCIÓN Y POSCOSECHA -->
+<!-- ========================================= -->
+
+<section class="dashboard-grid">
+
+    <article class="panel-card">
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">SEGUIMIENTO PRODUCTIVO</span>
+                <h2>Producción agrícola</h2>
+                <p>Resumen de las cosechas registradas.</p>
+            </div>
+
+            <a href="{% url 'produccion:cosechas_lista' %}">
+                Ver cosechas
+            </a>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+
+            <div style="background:#f2f7f3; padding:17px; border-radius:12px;">
+                <small>Total de cosechas</small>
+                <h2 style="font-size:28px; margin:8px 0;">
+                    {{ total_cosechas }}
+                </h2>
+            </div>
+
+            <div style="background:#f2f7f3; padding:17px; border-radius:12px;">
+                <small>Producción recolectada</small>
+                <h2 style="font-size:25px; margin:8px 0;">
+                    {{ produccion_total|floatformat:3 }} kg
+                </h2>
+            </div>
+
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:20px;">
+            <span> Lotes registrados </span>
+            <strong>{{ total_lotes }}</strong>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:12px;">
+            <span> Lotes en fermentación o secado </span>
+            <strong>{{ lotes_en_proceso }}</strong>
+        </div>
+
+        <div style="display:flex; justify-content:space-between; margin-top:12px;">
+            <span> Procesos de poscosecha abiertos </span>
+            <strong>{{ procesos_en_curso }}</strong>
+        </div>
+
+        <div style="margin-top:22px; display:flex; gap:8px; flex-wrap:wrap;">
+            <a href="{% url 'produccion:lotes_lista' %}"
+               class="btn-secondary">
+                Consultar lotes
+            </a>
+
+            <a href="{% url 'produccion:procesos_lista' %}"
+               class="btn-secondary">
+                Ver poscosecha
+            </a>
+        </div>
+
+    </article>
+
+
+    <!-- PRODUCCIÓN POR CULTIVO -->
+
+    <article class="panel-card">
+
+        <div class="panel-heading">
+            <div>
+                <span class="eyebrow">ANÁLISIS PRODUCTIVO</span>
+                <h2>Producción por cultivo</h2>
+                <p>Distribución de los kilogramos cosechados.</p>
+            </div>
+        </div>
+
+        {% for item in produccion_por_tipo %}
+
+            <div style="margin-bottom:20px;">
+
+                <div style="
+                    display:flex;
+                    justify-content:space-between;
+                    gap:10px;
+                    margin-bottom:7px;
+                ">
+                    <strong>{{ item.nombre }}</strong>
+
+                    <span>
+                        {{ item.total_kg|floatformat:3 }} kg
+                    </span>
+                </div>
+
+                <svg viewBox="0 0 100 11" preserveAspectRatio="none" style="
+                    display:block;
+                    width:100%;
+                    height:11px;
+                    background:#edf1ed;
+                    border-radius:20px;
+                ">
+                    <rect x="0" y="0" width="{{ item.porcentaje }}%" height="11" rx="5.5" fill="#287454"></rect>
+                </svg>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                <h3>Sin producción registrada</h3>
+                <p>
+                    Cuando existan cosechas registradas,
+                    se mostrará aquí su distribución por cultivo.
+                </p>
+            </div>
+
+        {% endfor %}
+
+    </article>
+
+</section>
+
+
+<!-- ========================================= -->
+<!-- RESUMEN ECONÓMICO -->
+<!-- ========================================= -->
+
+<section style="margin-top:22px;">
+
+    <div style="margin-bottom:15px;">
+        <span class="eyebrow">GESTIÓN FINANCIERA</span>
+        <h2>Resumen económico</h2>
+        <p>Consolidado de ingresos y gastos registrados.</p>
+    </div>
+
+    <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+        gap:15px;
+    ">
+
+        <article class="panel-card">
+            <span class="eyebrow">INGRESOS</span>
+            <h2 style="color:#278653; font-size:25px; margin:12px 0;">
+                ${{ ingresos|floatformat:2 }}
+            </h2>
+            <small>Total de ingresos registrados</small>
+        </article>
+
+        <article class="panel-card">
+            <span class="eyebrow">GASTOS</span>
+            <h2 style="color:#b4533c; font-size:25px; margin:12px 0;">
+                ${{ gastos|floatformat:2 }}
+            </h2>
+            <small>Total de gastos registrados</small>
+        </article>
+
+        <article class="panel-card">
+            <span class="eyebrow">BALANCE GENERAL</span>
+            <h2 style="font-size:25px; margin:12px 0;">
+                ${{ balance|floatformat:2 }}
+            </h2>
+            <small>Ingresos menos gastos</small>
+        </article>
+
+    </div>
+
+    <div style="margin-top:15px;">
+        <a href="{% url 'economia:balance' %}" class="btn-primary">
+            Consultar balance económico
+        </a>
+    </div>
+
+</section>
+
+
+<!-- ========================================= -->
+<!-- ACTIVIDAD RECIENTE -->
+<!-- ========================================= -->
+
+<section style="
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+    gap:18px;
+    margin-top:25px;
+">
+
+    <!-- PRODUCTORES RECIENTES -->
+
+    <article class="panel-card">
+
+        <div class="panel-heading">
+            <div>
+                <h2>Productores recientes</h2>
+                <p>Últimos registros incorporados.</p>
+            </div>
+
+            <a href="{% url 'productores:lista' %}">
+                Ver todos
+            </a>
+        </div>
+
+        {% for productor in recientes %}
+
+            <div class="recent-item">
+
+                <div class="recent-avatar">
+                    {{ productor.nombres|first|upper }}
+                </div>
+
+                <div class="recent-info">
+                    <strong>
+                        {{ productor.nombres }}
+                        {{ productor.apellidos }}
+                    </strong>
+
+                    <span>
+                        {{ productor.codigo }}
+                        ·
+                        {{ productor.vereda|default:"Vereda no registrada" }}
+                    </span>
+                </div>
+
+                {% if productor.activo %}
+                    <span class="status active">Activo</span>
+                {% else %}
+                    <span class="status inactive">Inactivo</span>
+                {% endif %}
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                <h3>Sin productores registrados</h3>
+            </div>
+
+        {% endfor %}
+
+    </article>
+
+
+    <!-- COSECHAS RECIENTES -->
+
+    <article class="panel-card">
+
+        <div class="panel-heading">
+            <div>
+                <h2>Cosechas recientes</h2>
+                <p>Últimas recolecciones registradas.</p>
+            </div>
+
+            <a href="{% url 'produccion:cosechas_lista' %}">
+                Ver todas
+            </a>
+        </div>
+
+        {% for cosecha in cosechas_recientes %}
+
+            <div style="
+                padding:13px 0;
+                border-bottom:1px solid #e5ebe6;
+            ">
+
+                <div style="display:flex; justify-content:space-between; gap:10px;">
+
+                    <strong>{{ cosecha.codigo }}</strong>
+
+                    <strong>
+                        {{ cosecha.cantidad_kg|floatformat:3 }} kg
+                    </strong>
+
+                </div>
+
+                <small style="color:#78867e;">
+                    {{ cosecha.cultivo.codigo }}
+                    ·
+                    {{ cosecha.cultivo.finca.nombre }}
+                    ·
+                    {{ cosecha.fecha_cosecha|date:"d/m/Y" }}
+                </small>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                <h3>Sin cosechas registradas</h3>
+                <p>Las últimas recolecciones aparecerán aquí.</p>
+            </div>
+
+        {% endfor %}
+
+    </article>
+
+
+    <!-- MOVIMIENTOS ECONÓMICOS -->
+
+    <article class="panel-card">
+
+        <div class="panel-heading">
+            <div>
+                <h2>Movimientos recientes</h2>
+                <p>Últimos registros económicos.</p>
+            </div>
+
+            <a href="{% url 'economia:movimientos_lista' %}">
+                Ver todos
+            </a>
+        </div>
+
+        {% for movimiento in movimientos_recientes %}
+
+            <div style="
+                padding:13px 0;
+                border-bottom:1px solid #e5ebe6;
+            ">
+
+                <div style="display:flex; justify-content:space-between; gap:10px;">
+
+                    <strong>{{ movimiento.get_tipo_display }}</strong>
+
+                    <strong>
+                        ${{ movimiento.valor|floatformat:2 }}
+                    </strong>
+
+                </div>
+
+                <small style="color:#78867e;">
+                    {{ movimiento.finca.nombre }}
+                    ·
+                    {{ movimiento.fecha|date:"d/m/Y" }}
+                </small>
+
+            </div>
+
+        {% empty %}
+
+            <div class="empty-state">
+                <h3>Sin movimientos económicos</h3>
+                <p>Los ingresos y gastos aparecerán aquí.</p>
+            </div>
+
+        {% endfor %}
+
+    </article>
+
+</section>
+
+
+<!-- ========================================= -->
+<!-- ACCESOS RÁPIDOS -->
+<!-- ========================================= -->
+
+<article class="panel-card" style="margin-top:22px;">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Accesos rápidos</h2>
+            <p>Operaciones frecuentes del sistema.</p>
+        </div>
+    </div>
+
+    <div style="
+        display:grid;
+        grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+        gap:12px;
+    ">
+
+        <a href="{% url 'productores:crear' %}" class="quick-link">
+            <span class="quick-icon">+</span>
+            <div>
+                <strong>Registrar productor</strong>
+                <small>Crear un nuevo registro</small>
+            </div>
+        </a>
+
+        <a href="{% url 'fincas:lista' %}" class="quick-link">
+            <span class="quick-icon">⌖</span>
+            <div>
+                <strong>Consultar fincas</strong>
+                <small>Administrar unidades productivas</small>
+            </div>
+        </a>
+
+        <a href="{% url 'cultivos:lista' %}" class="quick-link">
+            <span class="quick-icon">♣</span>
+            <div>
+                <strong>Consultar cultivos</strong>
+                <small>Gestionar cultivos registrados</small>
+            </div>
+        </a>
+
+        <a href="{% url 'produccion:cosechas_lista' %}" class="quick-link">
+            <span class="quick-icon">↗</span>
+            <div>
+                <strong>Consultar cosechas</strong>
+                <small>Revisar producción recolectada</small>
+            </div>
+        </a>
+
+        <a href="{% url 'economia:movimientos_lista' %}" class="quick-link">
+            <span class="quick-icon">$</span>
+            <div>
+                <strong>Gestión económica</strong>
+                <small>Registrar ingresos y gastos</small>
+            </div>
+        </a>
+
+        <a href="{% url 'economia:balance' %}" class="quick-link">
+            <span class="quick-icon">▤</span>
+            <div>
+                <strong>Balance económico</strong>
+                <small>Consultar resultados financieros</small>
+            </div>
+        </a>
+
+    </div>
+
+</article>
+
+{% endblock %}

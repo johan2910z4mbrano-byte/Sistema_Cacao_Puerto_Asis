@@ -1,0 +1,34 @@
+.venv/
+.env
+__pycache__/
+*.py[cod]
+db.sqlite3
+staticfiles/
+media/
+.vscode/
+# Respaldos
+*.dump
+*.backup
+*.bak
+*respaldo*.json
+*backup*.json
+# Datos personales de productores
+productores/importaciones/*.csv
+**/productores_contactos.csv
+**/areas_sembradas_revision.csv
+paquete_importacion_productores*.zip
+# Archivos temporales
+*.log
+.idea/
+Thumbs.db
+Desktop.ini
+# Configuracion adicional
+.env.*
+!.env.example
+
+# Copia adicional del comando de importacion
+productores/importaciones/productores/
+
+# Documentos internos de importacion
+produccion/LEEME_IMPORTACION.txt
+productores/importaciones/LEEME_IMPORTACION.txt

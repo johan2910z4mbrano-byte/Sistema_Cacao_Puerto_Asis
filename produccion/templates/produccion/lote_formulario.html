@@ -1,0 +1,59 @@
+{% extends "productores/base.html" %}
+
+{% block title %}{{ titulo }} | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">TRAZABILIDAD DE PRODUCCIÓN</span>
+        <h1>{{ titulo }}</h1>
+        <p>Identifica una porción de producción procedente de una cosecha.</p>
+    </div>
+
+    <a href="{% url 'produccion:lotes_lista' %}" class="btn-secondary">
+        Volver al listado
+    </a>
+</section>
+
+<article class="panel-card">
+    <div class="panel-heading">
+        <div>
+            <h2>Información del lote</h2>
+            <p>Completa la identificación y cantidad asignada al lote.</p>
+        </div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert-message">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        {% for field in form %}
+            <div style="margin-bottom:20px;">
+                <label for="{{ field.id_for_label }}"
+                       style="display:block; margin-bottom:7px; font-weight:600;">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% for error in field.errors %}
+                    <div style="color:#b42318; font-size:13px; margin-top:5px;">
+                        {{ error }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:25px;">
+            <button type="submit" class="btn-primary">Guardar lote</button>
+            <a href="{% url 'produccion:lotes_lista' %}"
+               class="btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</article>
+
+{% endblock %}

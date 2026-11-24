@@ -1,0 +1,151 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Actividades agrícolas | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">SEGUIMIENTO PRODUCTIVO</span>
+        <h1>Actividades agrícolas</h1>
+        <p>Consulta las labores realizadas durante el manejo de los cultivos.</p>
+    </div>
+
+    {% if puede_modificar %}
+        <a href="{% url 'cultivos:actividades_crear' %}" class="btn-primary">
+            + Registrar actividad
+        </a>
+    {% endif %}
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Historial de actividades</h2>
+            <p>Registro de labores e intervenciones agrícolas.</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por cultivo, finca, descripción o responsable..."
+        >
+
+        <select name="tipo" class="form-control">
+
+            <option value="todos">Todos los tipos</option>
+
+            {% for valor, nombre in tipos %}
+                <option value="{{ valor }}"
+                    {% if tipo == valor %}selected{% endif %}>
+                    {{ nombre }}
+                </option>
+            {% endfor %}
+
+        </select>
+
+        <button type="submit" class="btn-primary">
+            Buscar
+        </button>
+
+    </form>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Tipo de actividad</th>
+                    <th>Cultivo</th>
+                    <th>Finca</th>
+                    <th>Descripción</th>
+                    <th>Responsable</th>
+                    <th>Costo estimado</th>
+                    {% if puede_modificar %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for actividad in actividades %}
+
+                <tr>
+
+                    <td>{{ actividad.fecha|date:"d/m/Y" }}</td>
+
+                    <td>
+                        {{ actividad.get_tipo_actividad_display }}
+                    </td>
+
+                    <td>{{ actividad.cultivo.codigo }}</td>
+
+                    <td>{{ actividad.cultivo.finca.nombre }}</td>
+
+                    <td>
+                        {{ actividad.descripcion|truncatechars:55 }}
+                    </td>
+
+                    <td>
+                        {{ actividad.responsable|default:"No registrado" }}
+                    </td>
+
+                    <td>
+                        {% if actividad.costo_estimado != None %}
+                            ${{ actividad.costo_estimado|floatformat:2 }}
+                        {% else %}
+                            No registrado
+                        {% endif %}
+                    </td>
+
+                    {% if puede_modificar %}
+                    <td>
+                        <a
+                            href="{% url 'cultivos:actividades_editar' actividad.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+                    </td>
+                    {% endif %}
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="{% if puede_modificar %}8{% else %}7{% endif %}">
+                        <div class="empty-state">
+                            <h3>No hay actividades disponibles</h3>
+                            <p>
+                                Las labores agrícolas asociadas a tu cuenta
+                                aparecerán en este historial.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de actividades encontradas: {{ actividades|length }}
+    </p>
+
+</article>
+
+{% endblock %}

@@ -1,0 +1,211 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Membresías | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN ORGANIZACIONAL</span>
+        <h1>Membresías</h1>
+        <p>Administra la vinculación de productores con las asociaciones.</p>
+    </div>
+
+    <a href="{% url 'asociaciones:membresias_crear' %}"
+       class="btn-primary">
+        + Registrar membresía
+    </a>
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Listado de membresías</h2>
+            <p>Productores y organizaciones vinculadas</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar productor o asociación..."
+        >
+
+        <select name="estado" class="form-control">
+            <option value="todas"
+                {% if estado == "todas" %}selected{% endif %}>
+                Todos los estados
+            </option>
+
+            <option value="pendiente"
+                {% if estado == "pendiente" %}selected{% endif %}>
+                Pendientes
+            </option>
+
+            <option value="activa"
+                {% if estado == "activa" %}selected{% endif %}>
+                Activas
+            </option>
+
+            <option value="inactiva"
+                {% if estado == "inactiva" %}selected{% endif %}>
+                Inactivas
+            </option>
+        </select>
+
+        <select name="autorizacion" class="form-control">
+            <option value="todas"
+                {% if autorizacion == "todas" %}selected{% endif %}>
+                Todas las autorizaciones
+            </option>
+
+            <option value="si"
+                {% if autorizacion == "si" %}selected{% endif %}>
+                Autorizadas
+            </option>
+
+            <option value="no"
+                {% if autorizacion == "no" %}selected{% endif %}>
+                No autorizadas
+            </option>
+        </select>
+
+        <button type="submit" class="btn-primary">
+            Buscar
+        </button>
+
+    </form>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Productor</th>
+                    <th>Asociación</th>
+                    <th>Estado</th>
+                    <th>Autorización</th>
+                    <th>Fecha de vinculación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for membresia in membresias %}
+
+                <tr>
+                    <td>
+                        <strong>
+                            {{ membresia.productor.nombres }}
+                            {{ membresia.productor.apellidos }}
+                        </strong>
+                        <br>
+                        <small>{{ membresia.productor.codigo }}</small>
+                    </td>
+
+                    <td>{{ membresia.asociacion.nombre }}</td>
+
+                    <td>
+                        {% if membresia.estado == "activa" %}
+                            <span class="status active">Activa</span>
+                        {% elif membresia.estado == "inactiva" %}
+                            <span class="status inactive">Inactiva</span>
+                        {% else %}
+                            <span class="status">Pendiente</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if membresia.autorizacion_compartir %}
+                            <span class="status active">Autorizada</span>
+                        {% else %}
+                            <span class="status inactive">No autorizada</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        {% if membresia.fecha_vinculacion %}
+                            {{ membresia.fecha_vinculacion|date:"d/m/Y" }}
+                        {% else %}
+                            No registrada
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a
+                            href="{% url 'asociaciones:membresias_editar' membresia.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+
+                        {% if membresia.estado == "activa" %}
+
+                            <form
+                                method="POST"
+                                action="{% url 'asociaciones:membresias_cambiar_estado' membresia.pk %}"
+                                style="display:inline;"
+                                onsubmit="return confirm('¿Deseas desactivar esta membresía?');">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="btn-danger">
+                                    Desactivar
+                                </button>
+                            </form>
+
+                        {% elif membresia.estado == "inactiva" %}
+
+                            <form
+                                method="POST"
+                                action="{% url 'asociaciones:membresias_cambiar_estado' membresia.pk %}"
+                                style="display:inline;"
+                                onsubmit="return confirm('¿Deseas activar esta membresía?');">
+
+                                {% csrf_token %}
+
+                                <button type="submit" class="btn-secondary">
+                                    Activar
+                                </button>
+                            </form>
+
+                        {% endif %}
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <h3>No se encontraron membresías</h3>
+                            <p>
+                                Registra una nueva vinculación
+                                o modifica los filtros de búsqueda.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de membresías encontradas: {{ membresias|length }}
+    </p>
+
+</article>
+
+{% endblock %}

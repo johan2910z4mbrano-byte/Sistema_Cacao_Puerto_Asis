@@ -1,0 +1,126 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}{{ titulo }} | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN ORGANIZACIONAL</span>
+        <h1>{{ titulo }}</h1>
+        <p>
+            Administra la vinculación de productores
+            con las organizaciones.
+        </p>
+    </div>
+
+    <a href="{% url 'asociaciones:membresias_lista' %}"
+       class="btn-secondary">
+        Volver al listado
+    </a>
+</section>
+
+<article class="form-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Información de la membresía</h2>
+            <p>
+                Selecciona el productor y la asociación
+                correspondiente.
+            </p>
+        </div>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="alert-message">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="form-grid">
+
+            {% for field in form %}
+
+                {% if field.name != "autorizacion_compartir" %}
+
+                    <div class="form-group">
+
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                        </label>
+
+                        {{ field }}
+
+                        {% if field.help_text %}
+                            <small>{{ field.help_text }}</small>
+                        {% endif %}
+
+                        {% for error in field.errors %}
+                            <span style="color:#b13b3b; font-size:11px;">
+                                {{ error }}
+                            </span>
+                        {% endfor %}
+
+                    </div>
+
+                {% endif %}
+
+            {% endfor %}
+
+        </div>
+
+        <div class="form-group" style="margin-top:24px;">
+
+            <div style="display:flex; align-items:center; gap:10px;">
+
+                {{ form.autorizacion_compartir }}
+
+                <label for="{{ form.autorizacion_compartir.id_for_label }}">
+                    {{ form.autorizacion_compartir.label }}
+                </label>
+
+            </div>
+
+            {% if form.autorizacion_compartir.help_text %}
+                <small>
+                    {{ form.autorizacion_compartir.help_text }}
+                </small>
+            {% endif %}
+
+            {% for error in form.autorizacion_compartir.errors %}
+                <span style="color:#b13b3b; font-size:11px;">
+                    {{ error }}
+                </span>
+            {% endfor %}
+
+        </div>
+
+        <div class="alert-message" style="margin-top:20px;">
+            La autorización para compartir información debe
+            corresponder a una decisión expresa y verificable
+            del productor. No la marques sin su consentimiento.
+        </div>
+
+        <div class="form-actions">
+
+            <button type="submit" class="btn-primary">
+                Guardar membresía
+            </button>
+
+            <a href="{% url 'asociaciones:membresias_lista' %}"
+               class="btn-secondary">
+                Cancelar
+            </a>
+
+        </div>
+
+    </form>
+
+</article>
+
+{% endblock %}

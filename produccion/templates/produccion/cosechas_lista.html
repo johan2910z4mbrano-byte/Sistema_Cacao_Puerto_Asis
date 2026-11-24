@@ -1,0 +1,104 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Cosechas | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN DE PRODUCCIÓN</span>
+        <h1>Registro de cosechas</h1>
+        <p>Consulta la producción recolectada en los cultivos.</p>
+    </div>
+
+    {% if puede_modificar %}
+        <a href="{% url 'produccion:cosechas_crear' %}" class="btn-primary">
+            + Registrar cosecha
+        </a>
+    {% endif %}
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Historial de cosechas</h2>
+            <p>Registro de cantidades recolectadas por cultivo.</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por código, cultivo, finca o productor..."
+        >
+        <button type="submit" class="btn-primary">Buscar</button>
+    </form>
+
+    <div class="table-container">
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Fecha</th>
+                    <th>Cultivo</th>
+                    <th>Finca</th>
+                    <th>Productor</th>
+                    <th>Cantidad (kg)</th>
+                    {% if puede_modificar %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for cosecha in cosechas %}
+                <tr>
+                    <td><strong>{{ cosecha.codigo }}</strong></td>
+                    <td>{{ cosecha.fecha_cosecha|date:"d/m/Y" }}</td>
+                    <td>{{ cosecha.cultivo.codigo }}</td>
+                    <td>{{ cosecha.cultivo.finca.nombre }}</td>
+                    <td>
+                        {{ cosecha.cultivo.finca.productor.nombres }}
+                        {{ cosecha.cultivo.finca.productor.apellidos }}
+                    </td>
+                    <td>{{ cosecha.cantidad_kg|floatformat:3 }}</td>
+
+                    {% if puede_modificar %}
+                    <td>
+                        <a
+                            href="{% url 'produccion:cosechas_editar' cosecha.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="{% if puede_modificar %}7{% else %}6{% endif %}">
+                        <div class="empty-state">
+                            <h3>No hay cosechas disponibles</h3>
+                            <p>No existen cosechas asociadas a tu cuenta o autorizaciones.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de cosechas encontradas: {{ cosechas|length }}
+    </p>
+
+</article>
+
+{% endblock %}

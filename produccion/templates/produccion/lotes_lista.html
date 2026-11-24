@@ -1,0 +1,113 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Lotes | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">TRAZABILIDAD DE PRODUCCIÓN</span>
+        <h1>Lotes de producción</h1>
+        <p>Identifica y consulta los lotes derivados de las cosechas.</p>
+    </div>
+
+    {% if puede_modificar %}
+        <a href="{% url 'produccion:lotes_crear' %}" class="btn-primary">
+            + Registrar lote
+        </a>
+    {% endif %}
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Listado de lotes</h2>
+            <p>Seguimiento de cantidades y estados de producción.</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por código, cosecha, cultivo o finca..."
+        >
+
+        <select name="estado" class="form-control">
+            <option value="todos">Todos los estados</option>
+
+            {% for valor, nombre in estados %}
+                <option value="{{ valor }}"
+                    {% if estado == valor %}selected{% endif %}>
+                    {{ nombre }}
+                </option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="btn-primary">Buscar</button>
+    </form>
+
+    <div class="table-container">
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Cosecha</th>
+                    <th>Cultivo</th>
+                    <th>Finca</th>
+                    <th>Cantidad inicial (kg)</th>
+                    <th>Estado</th>
+                    {% if puede_modificar %}
+                        <th>Acciones</th>
+                    {% endif %}
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for lote in lotes %}
+                <tr>
+                    <td><strong>{{ lote.codigo }}</strong></td>
+                    <td>{{ lote.cosecha.codigo }}</td>
+                    <td>{{ lote.cosecha.cultivo.codigo }}</td>
+                    <td>{{ lote.cosecha.cultivo.finca.nombre }}</td>
+                    <td>{{ lote.cantidad_inicial_kg|floatformat:3 }}</td>
+                    <td>{{ lote.get_estado_display }}</td>
+
+                    {% if puede_modificar %}
+                    <td>
+                        <a
+                            href="{% url 'produccion:lotes_editar' lote.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+                    </td>
+                    {% endif %}
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="{% if puede_modificar %}7{% else %}6{% endif %}">
+                        <div class="empty-state">
+                            <h3>No hay lotes disponibles</h3>
+                            <p>No existen lotes asociados a tu cuenta o autorizaciones.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de lotes encontrados: {{ lotes|length }}
+    </p>
+
+</article>
+
+{% endblock %}

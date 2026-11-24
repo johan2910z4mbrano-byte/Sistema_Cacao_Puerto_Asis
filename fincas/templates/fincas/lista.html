@@ -1,0 +1,139 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Fincas | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN AGROPECUARIA</span>
+        <h1>Fincas y predios</h1>
+        <p>Administra las unidades productivas de los pequeños productores de cacao.</p>
+    </div>
+
+    <a href="{% url 'fincas:crear' %}" class="btn-primary">
+        + Registrar finca
+    </a>
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Listado de fincas</h2>
+            <p>Predios registrados en Cacao Gestión</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por código, finca, productor o vereda..."
+        >
+
+        <select name="estado" class="form-control">
+            <option value="activas" {% if estado == "activas" %}selected{% endif %}>
+                Activas
+            </option>
+            <option value="inactivas" {% if estado == "inactivas" %}selected{% endif %}>
+                Inactivas
+            </option>
+            <option value="todas" {% if estado == "todas" %}selected{% endif %}>
+                Todas
+            </option>
+        </select>
+
+        <button type="submit" class="btn-primary">Buscar</button>
+
+    </form>
+
+    <div class="table-container">
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Finca</th>
+                    <th>Productor responsable</th>
+                    <th>Vereda</th>
+                    <th>Área (ha)</th>
+                    <th>GPS</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for finca in fincas %}
+                <tr>
+                    <td>{{ finca.codigo }}</td>
+                    <td><strong>{{ finca.nombre }}</strong></td>
+                    <td>
+                        {{ finca.productor.nombres }}
+                        {{ finca.productor.apellidos }}
+                    </td>
+                    <td>{{ finca.vereda }}</td>
+                    <td>{{ finca.area_hectareas|default:"No registrada" }}</td>
+                    <td>
+                        {% if finca.latitud and finca.longitud %}
+                            <span class="status active">Ubicada</span>
+                        {% else %}
+                            <span class="status inactive">Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if finca.activa %}
+                            <span class="status active">Activa</span>
+                        {% else %}
+                            <span class="status inactive">Inactiva</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'fincas:editar' finca.pk %}"
+                           class="btn-secondary">
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'fincas:cambiar_estado' finca.pk %}"
+                            style="display:inline;"
+                            onsubmit="return confirm('¿Deseas cambiar el estado de esta finca?');">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                class="{% if finca.activa %}btn-danger{% else %}btn-secondary{% endif %}">
+                                {% if finca.activa %}Desactivar{% else %}Activar{% endif %}
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+
+                {% empty %}
+                <tr>
+                    <td colspan="8">
+                        <div class="empty-state">
+                            <h3>No hay fincas registradas</h3>
+                            <p>Registra una finca para comenzar a administrar su información productiva.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+
+        </table>
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de fincas encontradas: {{ fincas|length }}
+    </p>
+
+</article>
+
+{% endblock %}

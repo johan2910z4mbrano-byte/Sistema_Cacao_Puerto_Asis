@@ -1,0 +1,150 @@
+
+{% extends "productores/base.html" %}
+
+{% block title %}Productores | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN AGROPECUARIA</span>
+        <h1>Productores de cacao</h1>
+        <p>Consulta y administra los registros de los productores.</p>
+    </div>
+
+    <a href="{% url 'productores:crear' %}" class="btn-primary">
+        + Registrar productor
+    </a>
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Listado de productores</h2>
+            <p>Información registrada en el sistema</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por código, nombre o vereda..."
+        >
+
+        <select name="estado" class="form-control">
+            <option value="activos"
+                {% if estado == "activos" %}selected{% endif %}>
+                Activos
+            </option>
+
+            <option value="inactivos"
+                {% if estado == "inactivos" %}selected{% endif %}>
+                Inactivos
+            </option>
+
+            <option value="todos"
+                {% if estado == "todos" %}selected{% endif %}>
+                Todos
+            </option>
+        </select>
+
+        <button type="submit" class="btn-primary">
+            Buscar
+        </button>
+
+    </form>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Teléfono</th>
+                    <th>Vereda</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for productor in productores %}
+
+                <tr>
+                    <td><strong>{{ productor.codigo }}</strong></td>
+                    <td>{{ productor.nombres }}</td>
+                    <td>{{ productor.apellidos }}</td>
+                    <td>{{ productor.telefono|default:"No registrado" }}</td>
+                    <td>{{ productor.vereda|default:"No registrada" }}</td>
+
+                    <td>
+                        {% if productor.activo %}
+                            <span class="status active">Activo</span>
+                        {% else %}
+                            <span class="status inactive">Inactivo</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a
+                            href="{% url 'productores:editar' productor.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'productores:cambiar_estado' productor.pk %}"
+                            style="display:inline;"
+                            onsubmit="return confirm('¿Deseas cambiar el estado de este productor?');">
+
+                            {% csrf_token %}
+
+                            <button type="submit"
+                                    class="{% if productor.activo %}btn-danger{% else %}btn-secondary{% endif %}">
+                                {% if productor.activo %}
+                                    Desactivar
+                                {% else %}
+                                    Activar
+                                {% endif %}
+                            </button>
+
+                        </form>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <h3>No se encontraron productores</h3>
+                            <p>Prueba con otro criterio de búsqueda o registra un productor.</p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de registros encontrados: {{ productores|length }}
+    </p>
+
+</article>
+
+{% endblock %}

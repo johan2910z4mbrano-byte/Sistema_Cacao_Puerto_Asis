@@ -1,0 +1,194 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Cacao Gestión{% endblock %}</title>
+
+    <link rel="stylesheet"
+          href="{% static 'productores/css/style.css' %}">
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- BARRA LATERAL -->
+    <aside class="sidebar">
+
+        <a href="{% url 'productores:dashboard' %}" class="brand">
+            <div class="brand-icon">CG</div>
+            <div>
+                <h2>CACAO GESTIÓN</h2>
+                <span>Puerto Asís · Putumayo</span>
+            </div>
+        </a>
+
+        <div class="sidebar-section">
+            MENÚ PRINCIPAL
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{% url 'productores:dashboard' %}" class="nav-link">
+                <span class="nav-icon">⌂</span>
+                Panel principal
+            </a>
+
+            <a href="{% url 'productores:lista' %}" class="nav-link">
+                <span class="nav-icon">♧</span>
+                Productores
+            </a>
+
+            {% if user.is_staff or user.is_superuser %}
+                <a href="{% url 'productores:crear' %}" class="nav-link">
+                    <span class="nav-icon">+</span>
+                    Registrar productor
+                </a>
+            {% endif %}
+
+        </nav>
+
+        <div class="sidebar-section">
+            GESTIÓN AGROPECUARIA
+        </div>
+
+        <nav class="sidebar-nav">
+
+            <a href="{% url 'fincas:lista' %}" class="nav-link">
+                <span class="nav-icon">⌖</span>
+                Fincas y mapa
+            </a>
+
+            {% if user.is_staff or user.is_superuser or user.perfil.tipo_usuario == "productor" %}
+                <a href="{% url 'fincas:crear' %}" class="nav-link">
+                    <span class="nav-icon">+</span>
+                    Registrar finca
+                </a>
+            {% endif %}
+
+            <a href="{% url 'cultivos:lista' %}" class="nav-link">
+                <span class="nav-icon">♣</span>
+                Cultivos
+            </a>
+
+            <a href="{% url 'produccion:cosechas_lista' %}" class="nav-link">
+                <span class="nav-icon">↗</span>
+                Cosechas
+            </a>
+
+            <a href="{% url 'produccion:lotes_lista' %}" class="nav-link">
+                <span class="nav-icon">▤</span>
+                Lotes de producción
+            </a>
+
+            <a href="{% url 'produccion:procesos_lista' %}" class="nav-link">
+                <span class="nav-icon">◷</span>
+                Poscosecha
+            </a>
+
+        </nav>
+
+        {% if user.is_staff or user.is_superuser or user.perfil.tipo_usuario == "productor" %}
+            <div class="sidebar-section">
+                GESTIÓN ECONÓMICA
+            </div>
+
+            <nav class="sidebar-nav">
+
+                <a href="{% url 'economia:movimientos_lista' %}" class="nav-link">
+                    <span class="nav-icon">$</span>
+                    Ingresos y gastos
+                </a>
+
+                <a href="{% url 'economia:balance' %}" class="nav-link">
+                    <span class="nav-icon">▤</span>
+                    Balance económico
+                </a>
+
+            </nav>
+        {% endif %}
+
+        <div class="sidebar-footer">
+            <span>Proyecto de grado</span>
+            <strong>Ingeniería de Sistemas · UNAD</strong>
+        </div>
+
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="main-area">
+
+        <header class="topbar">
+
+            <div>
+                <span class="topbar-label">
+                    SISTEMA DE INFORMACIÓN AGROPECUARIA
+                </span>
+
+                <span class="topbar-location">
+                    Puerto Asís, Putumayo
+                </span>
+            </div>
+
+            <div class="user-profile">
+
+                <div class="user-avatar">
+                    {{ user.get_username|first|upper }}
+                </div>
+
+                <div>
+                    <strong>{{ user.get_username }}</strong>
+
+                    {% if user.is_staff or user.is_superuser %}
+                        <span>Administrador</span>
+                    {% elif user.perfil.tipo_usuario == "productor" %}
+                        <span>Productor agropecuario</span>
+                    {% elif user.perfil.tipo_usuario == "asociacion" %}
+                        <span>Representante de asociación</span>
+                    {% else %}
+                        <span>Usuario del sistema</span>
+                    {% endif %}
+                </div>
+
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-secondary">
+                        Cerrar sesión
+                    </button>
+                </form>
+
+            </div>
+
+        </header>
+
+        <main class="content-area">
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert-message">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+
+        </main>
+
+        <footer class="main-footer">
+            Sistema de información para la gestión y trazabilidad
+            de pequeños productores de cacao.
+            <br>
+            Universidad Nacional Abierta y a Distancia · UNAD
+        </footer>
+
+    </div>
+
+</div>
+
+</body>
+</html>

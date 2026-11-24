@@ -1,0 +1,168 @@
+{% extends "productores/base.html" %}
+
+{% block title %}Asociaciones | Cacao Gestión{% endblock %}
+
+{% block content %}
+
+<section class="welcome-section">
+    <div>
+        <span class="eyebrow">GESTIÓN ORGANIZACIONAL</span>
+        <h1>Asociaciones</h1>
+        <p>
+            Consulta y administra las organizaciones
+            vinculadas al sector cacaotero.
+        </p>
+    </div>
+
+    <a href="{% url 'asociaciones:crear' %}" class="btn-primary">
+        + Registrar asociación
+    </a>
+</section>
+
+<article class="panel-card">
+
+    <div class="panel-heading">
+        <div>
+            <h2>Listado de asociaciones</h2>
+            <p>Información registrada en Cacao Gestión</p>
+        </div>
+    </div>
+
+    <form method="GET" class="search-bar">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ busqueda }}"
+            class="form-control"
+            placeholder="Buscar por nombre, sigla o vereda..."
+        >
+
+        <select name="estado" class="form-control">
+            <option value="activas"
+                {% if estado == "activas" %}selected{% endif %}>
+                Activas
+            </option>
+
+            <option value="inactivas"
+                {% if estado == "inactivas" %}selected{% endif %}>
+                Inactivas
+            </option>
+
+            <option value="todas"
+                {% if estado == "todas" %}selected{% endif %}>
+                Todas
+            </option>
+        </select>
+
+        <button type="submit" class="btn-primary">
+            Buscar
+        </button>
+
+    </form>
+
+    <div class="table-container">
+
+        <table class="data-table">
+
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Sigla</th>
+                    <th>Municipio</th>
+                    <th>Vereda o sector</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for asociacion in asociaciones %}
+
+                <tr>
+                    <td>
+                        <strong>{{ asociacion.nombre }}</strong>
+                    </td>
+
+                    <td>
+                        {{ asociacion.sigla|default:"No registrada" }}
+                    </td>
+
+                    <td>
+                        {{ asociacion.municipio }}
+                    </td>
+
+                    <td>
+                        {{ asociacion.vereda|default:"No registrada" }}
+                    </td>
+
+                    <td>
+                        {% if asociacion.activo %}
+                            <span class="status active">Activa</span>
+                        {% else %}
+                            <span class="status inactive">Inactiva</span>
+                        {% endif %}
+                    </td>
+
+                    <td>
+                        <a
+                            href="{% url 'asociaciones:editar' asociacion.pk %}"
+                            class="btn-secondary">
+                            Editar
+                        </a>
+
+                        <form
+                            method="POST"
+                            action="{% url 'asociaciones:cambiar_estado' asociacion.pk %}"
+                            style="display:inline;"
+                            onsubmit="return confirm('¿Deseas cambiar el estado de esta asociación?');">
+
+                            {% csrf_token %}
+
+                            <button
+                                type="submit"
+                                class="{% if asociacion.activo %}btn-danger{% else %}btn-secondary{% endif %}">
+
+                                {% if asociacion.activo %}
+                                    Desactivar
+                                {% else %}
+                                    Activar
+                                {% endif %}
+
+                            </button>
+
+                        </form>
+                    </td>
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="6">
+                        <div class="empty-state">
+                            <h3>No se encontraron asociaciones</h3>
+                            <p>
+                                Prueba con otro criterio de búsqueda
+                                o registra una nueva asociación.
+                            </p>
+                        </div>
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <p style="margin-top:18px; color:#78867e; font-size:11px;">
+        Total de asociaciones encontradas:
+        {{ asociaciones|length }}
+    </p>
+
+</article>
+
+{% endblock %}
